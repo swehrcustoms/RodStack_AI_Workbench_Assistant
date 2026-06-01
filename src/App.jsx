@@ -15,7 +15,10 @@ import {
   FlaskConical,
   Gauge,
   Link as LinkIcon,
+  Home,
 } from "lucide-react";
+import MarketingLanding from "./MarketingLanding.jsx";
+import { seededBlueprint } from "./data/seededBlueprint.js";
 
 const STORAGE_KEY = "rodstack.app.v2";
 
@@ -35,51 +38,8 @@ const shortcutCards = [
   { label: "Panfish Ice Noodle", species: "Panfish", technique: "Panfish Ice Noodle" },
 ];
 
-const seededBlueprint = {
-  sku: "TRN-73M-CRK-001",
-  name: "Deep Water Football Jig Master",
-  technique: "Deep Water Football Jigs",
-  species: "Bass",
-  blankArchitecture: {
-    blankMaterial: "MHX-EPS86M / Edge OEM",
-    length: `7'3"`,
-    action: "Extra-Fast",
-    power: "Medium",
-    lineWindow: "8-15 lb",
-    lureWindow: "3/16 - 5/8 oz",
-    spineAxis: 0,
-    tipTube: 4.5,
-    buttOD: 0.52,
-    rawBlankWeight: 1.85,
-    totalCompletedRodWeight: 3.62,
-  },
-  handleAssembly: {
-    gripStyle: "Split-Grip",
-    rearGripMaterial: "3A Cork Rear",
-    rearGripLength: 10.5,
-    foreGripMaterial: "Super Grade Foregrip",
-    foreGripLength: 1.25,
-    reelSeatModel: "Fuji ECS-16 Seat",
-    hoodConfig: "Down-Locking",
-    arborMaterial: "Polyurethane Core Arbors",
-    balancePoint: 11.2,
-  },
-  guideTrain: {
-    frameMaterial: "Titanium",
-    ringMaterial: "SiC",
-    stripperDistanceToReel: 20.5,
-    spacingArray: [0.0, 3.5, 7.5, 12.0, 17.25, 23.25, 30.0, 38.0, 47.5],
-  },
-  qualityControl: {
-    staticFlexValidation: true,
-    ambientTemperature: 69,
-    relativeHumidity: 42,
-    cureWindowHours: 18,
-  },
-};
-
 const defaultState = {
-  currentView: "landing",
+  currentView: "marketing",
   searchQuery: "",
   inventory: [seededBlueprint],
   activeBlueprintSku: seededBlueprint.sku,
@@ -303,18 +263,34 @@ function App() {
     </label>
   );
 
+  if (appState.currentView === "marketing") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0b111e] to-[#0f172a] text-white">
+        <MarketingLanding
+          onLaunchBench={() => setCurrentView("bench")}
+          onNavigate={(view) => setCurrentView(view)}
+          onSignIn={() => setCurrentView("onboarding")}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0b111e] to-[#0f172a] text-white">
       <div className="mx-auto max-w-7xl px-4 pb-12 pt-5 sm:px-6 lg:px-8">
         <header className="mb-6 rounded-2xl border border-slate-700 bg-slate-900/80 p-4 backdrop-blur">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">Engineering Workshop Suite</p>
-              <h1 className="mt-1 text-2xl font-bold tracking-[0.2em]">RODSTACK</h1>
-            </div>
+            <button onClick={() => setCurrentView("marketing")} className="flex items-center gap-3 text-left">
+              <img src="/RS Logo.png" alt="RodStack" className="h-9 w-9" />
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">Engineering Workshop Suite</p>
+                <h1 className="mt-1 text-xl font-bold tracking-[0.2em]">RODSTACK</h1>
+              </div>
+            </button>
             <nav className="flex flex-wrap gap-2">
-              <NavButton target="landing" icon={Search} label="Universal Search" />
-              <NavButton target="onboarding" icon={Rocket} label="Onboarding Wizard" />
+              <NavButton target="marketing" icon={Home} label="Home" />
+              <NavButton target="landing" icon={Search} label="Lineup Explorer" />
+              <NavButton target="onboarding" icon={Rocket} label="Blank Directory" />
               <NavButton target="bench" icon={LayoutDashboard} label="Production Bench" />
               <NavButton target="scraper" icon={LinkIcon} label="AI Extraction" />
             </nav>
