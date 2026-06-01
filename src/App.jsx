@@ -16,8 +16,11 @@ import {
   Gauge,
   Link as LinkIcon,
   Home,
+  ClipboardList,
 } from "lucide-react";
 import MarketingLanding from "./MarketingLanding.jsx";
+import RodStackFormsSuite from "./forms/RodStackFormsSuite.jsx";
+import SignupForm from "./forms/SignupForm.jsx";
 import { seededBlueprint } from "./data/seededBlueprint.js";
 
 const STORAGE_KEY = "rodstack.app.v2";
@@ -55,6 +58,7 @@ const defaultState = {
     inputUrl: "https://www.thornebros.com/custom-rods/midwest-vertical",
     isAnalyzing: false,
   },
+  formsInitialTab: "signup",
 };
 
 const parseNum = (v) => {
@@ -270,6 +274,13 @@ function RodStackApp() {
           onLaunchBench={() => setCurrentView("bench")}
           onNavigate={(view) => setCurrentView(view)}
           onSignIn={() => setCurrentView("onboarding")}
+          onOpenForms={(tab) =>
+            updateState((prev) => ({
+              ...prev,
+              currentView: tab === "signup" ? "onboarding" : "forms",
+              formsInitialTab: tab || "signup",
+            }))
+          }
         />
       </div>
     );
@@ -293,6 +304,7 @@ function RodStackApp() {
               <NavButton target="onboarding" icon={Rocket} label="Blank Directory" />
               <NavButton target="bench" icon={LayoutDashboard} label="Production Bench" />
               <NavButton target="scraper" icon={LinkIcon} label="AI Extraction" />
+              <NavButton target="forms" icon={ClipboardList} label="Forms Hub" />
             </nav>
           </div>
         </header>
@@ -405,42 +417,16 @@ function RodStackApp() {
             )}
 
             {appState.onboarding.step === 3 && (
-              <div className="mt-4 max-w-2xl rounded-2xl border border-emerald-500/35 bg-slate-950 p-5">
-                <h3 className="text-lg font-semibold">Workshop Registration</h3>
-                <div className="mt-4 grid gap-3">
-                  <LabelInput
-                    label="Workshop Name"
-                    value={appState.onboarding.workshopName}
-                    onChange={(e) =>
-                      updateState((prev) => ({
-                        ...prev,
-                        onboarding: { ...prev.onboarding, workshopName: e.target.value },
-                      }))
-                    }
-                  />
-                  <LabelInput
-                    label="Email"
-                    value={appState.onboarding.email}
-                    onChange={(e) =>
-                      updateState((prev) => ({
-                        ...prev,
-                        onboarding: { ...prev.onboarding, email: e.target.value },
-                      }))
-                    }
-                    type="email"
-                  />
-                  <LabelInput
-                    label="Secure Password"
-                    value={appState.onboarding.password}
-                    onChange={(e) =>
-                      updateState((prev) => ({
-                        ...prev,
-                        onboarding: { ...prev.onboarding, password: e.target.value },
-                      }))
-                    }
-                    type="password"
-                  />
-                </div>
+              <div className="mt-4 overflow-hidden rounded-2xl border border-emerald-500/35 bg-[#07090f]">
+                <SignupForm
+                  initialValues={{
+                    name: appState.onboarding.workshopName,
+                    email: appState.onboarding.email,
+                    company: appState.onboarding.workshopName,
+                    plan: "free",
+                  }}
+                  onSuccess={() => setCurrentView("bench")}
+                />
               </div>
             )}
 
@@ -947,6 +933,15 @@ function RodStackApp() {
                 ))}
               </div>
             </div>
+          </section>
+        )}
+
+        {appState.currentView === "forms" && (
+          <section className="overflow-hidden rounded-2xl border border-slate-700">
+            <RodStackFormsSuite
+              initialTab={appState.formsInitialTab || "signup"}
+              onBack={() => setCurrentView("marketing")}
+            />
           </section>
         )}
       </div>

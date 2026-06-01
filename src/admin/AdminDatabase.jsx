@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import AdminRecords from "./AdminRecords.jsx";
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 const SHEET_ID = "1WRA19FBOlJ5idoQ9lVJL6miQJy2Sc5Uxvq0UuvfWt_A";
@@ -1014,6 +1015,9 @@ The Google Sheet is at: ${SHEET_URL}`;
         <button type="button" style={s.navBtn(view === "ai")} onClick={() => setView("ai")}>
           ✦ Ask Claude
         </button>
+        <button type="button" style={s.navBtn(view === "records")} onClick={() => setView("records")}>
+          📋 Form Records
+        </button>
         <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 11, color: "#334155" }}>Sheet:</span>
           <a
@@ -1045,6 +1049,7 @@ The Google Sheet is at: ${SHEET_URL}`;
         {view === "detail" && selected && <DetailView />}
         {view === "add" && <AddView />}
         {view === "ai" && <AiView />}
+        {view === "records" && <AdminRecords onBack={() => setView("table")} />}
       </div>
 
       {toast && (

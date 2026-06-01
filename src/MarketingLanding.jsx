@@ -14,6 +14,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { buildGuideRows, computeNetComponentWeight, seededBlueprint } from "./data/seededBlueprint";
+import RodStackFormsSuite from "./forms/RodStackFormsSuite.jsx";
 
 const midwestTabs = [
   {
@@ -128,7 +129,7 @@ const quickFeatures = [
   { icon: Layers, label: "Midwest Lineups", sub: "Bass, Pike & Musky", color: "text-purple-300" },
 ];
 
-function MarketingLanding({ onLaunchBench, onNavigate, onSignIn }) {
+function MarketingLanding({ onLaunchBench, onNavigate, onSignIn, onOpenForms }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("walleye");
 
@@ -606,6 +607,43 @@ function MarketingLanding({ onLaunchBench, onNavigate, onSignIn }) {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Signup & support forms ── */}
+      <section className="border-t border-slate-800 bg-[#0b111e] px-4 py-16 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-slate-500">Workshop Access</p>
+          <h2 className="mt-2 text-3xl font-bold text-white">Create Your RodStack Account</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-slate-400">
+            Register your shop, submit support tickets, and request features — every submission is logged to your workshop database.
+          </p>
+        </div>
+        <div className="mx-auto mt-10 max-w-3xl">
+          <RodStackFormsSuite embedded initialTab="signup" showHeader={false} />
+        </div>
+        <div className="mx-auto mt-6 flex max-w-xl flex-wrap justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => onOpenForms?.("support")}
+            className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-300 hover:bg-red-500/20"
+          >
+            Support Request
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenForms?.("feature")}
+            className="rounded-lg border border-purple-500/30 bg-purple-500/10 px-4 py-2 text-sm text-purple-300 hover:bg-purple-500/20"
+          >
+            Feature Request
+          </button>
+          <button
+            type="button"
+            onClick={() => onOpenForms?.("email")}
+            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/20"
+          >
+            Welcome Email Tools
+          </button>
         </div>
       </section>
 
