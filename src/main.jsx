@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import RodStackApp from "./App.jsx";
 import AdminGate from "./admin/AdminGate.jsx";
+import { RodStackDataProvider } from "./context/RodStackDataContext.jsx";
 import "./index.css";
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
 
 function isAdminRoute() {
   return window.location.hash === "#admin" || window.location.pathname.endsWith("/admin");
@@ -32,7 +39,11 @@ function Root() {
     );
   }
 
-  return <RodStackApp />;
+  return (
+    <RodStackDataProvider>
+      <RodStackApp />
+    </RodStackDataProvider>
+  );
 }
 
 createRoot(document.getElementById("root")).render(

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RodStack Admin &amp; Navigation Guide</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 720px; margin: 40px auto; line-height: 1.5; color: #1a1a1a; }
+    h1 { font-size: 22pt; border-bottom: 2px solid #0891b2; padding-bottom: 8px; }
+    h2 { font-size: 14pt; color: #0e7490; margin-top: 28px; }
+    h3 { font-size: 12pt; color: #334155; }
+    p, li { font-size: 11pt; }
+    a { color: #0369a1; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; font-size: 10pt; }
+    th, td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; vertical-align: top; }
+    th { background: #f1f5f9; }
+    .note { background: #fffbeb; border: 1px solid #fcd34d; padding: 12px; border-radius: 6px; font-size: 10pt; }
+    code { background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 10pt; }
+  </style>
+</head>
+<body>
+
+<h1>RodStack Admin &amp; Navigation Guide</h1>
+<p><strong>Production base URL:</strong> <a href="https://rod-stack-ai-workbench-assistant.vercel.app/">https://rod-stack-ai-workbench-assistant.vercel.app/</a><br />
+<strong>Local dev:</strong> <a href="http://localhost:5173/">http://localhost:5173/</a> (after <code>npm run dev</code>)</p>
+
+<div class="note">
+  <strong>Admin password:</strong> Default is <code>rodstack-admin-2026</code> unless you set <code>VITE_ADMIN_PASSWORD</code> in Vercel or <code>.env</code>. Admin session is stored in browser <code>sessionStorage</code> after unlock.
+</div>
+
+<h2>1. Admin console</h2>
+<p>Entry points (same console):</p>
+<ul>
+  <li><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#admin">Production — #admin</a></li>
+  <li><a href="https://rod-stack-ai-workbench-assistant.vercel.app/admin">Production — /admin</a></li>
+  <li><a href="http://localhost:5173/#admin">Local — #admin</a></li>
+</ul>
+
+<h3>In-app admin areas (no separate URLs)</h3>
+<table>
+  <tr><th>Area</th><th>How to open</th></tr>
+  <tr><td>User database</td><td>Default after password unlock</td></tr>
+  <tr><td>User detail</td><td>Click any row in the user table</td></tr>
+  <tr><td>Add user</td><td>“+ Add User” in the admin header</td></tr>
+  <tr><td>Ask Claude</td><td>Left navigation → Ask Claude</td></tr>
+  <tr><td>Form submissions</td><td>Left navigation → Form Records</td></tr>
+  <tr><td>Form Records filters</td><td>All · Signup · Support · Feature · Email (tabs inside Form Records)</td></tr>
+</table>
+
+<p><strong>Linked Google Sheet (users / admin):</strong><br />
+<a href="https://docs.google.com/spreadsheets/d/1WRA19FBOlJ5idoQ9lVJL6miQJy2Sc5Uxvq0UuvfWt_A/edit">Open users sheet</a></p>
+
+<h2>2. Main workshop app (bookmarkable links)</h2>
+<table>
+  <tr><th>Section</th><th>Production link</th></tr>
+  <tr><td>Marketing / home</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/">/</a></td></tr>
+  <tr><td>Lineup Explorer</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=landing">#view=landing</a></td></tr>
+  <tr><td>Blank Directory</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=onboarding">#view=onboarding</a></td></tr>
+  <tr><td>Production Bench</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench">#view=bench</a></td></tr>
+  <tr><td>Build Vault</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=vault">#view=vault</a></td></tr>
+  <tr><td>CRM</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm">#view=crm</a></td></tr>
+  <tr><td>Inventory</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=inventory">#view=inventory</a></td></tr>
+  <tr><td>Analytics</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=analytics">#view=analytics</a></td></tr>
+  <tr><td>Profile / auth</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=profile">#view=profile</a></td></tr>
+  <tr><td>AI Extraction</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=scraper">#view=scraper</a></td></tr>
+  <tr><td>Forms Hub</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms">#view=forms</a></td></tr>
+</table>
+
+<h2>3. Forms Hub tabs</h2>
+<table>
+  <tr><th>Tab</th><th>Link</th></tr>
+  <tr><td>User Signup</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=signup">#view=forms&amp;tab=signup</a></td></tr>
+  <tr><td>Welcome Email</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=email">#view=forms&amp;tab=email</a></td></tr>
+  <tr><td>Support Request</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=support">#view=forms&amp;tab=support</a></td></tr>
+  <tr><td>Feature Request</td><td><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=feature">#view=forms&amp;tab=feature</a></td></tr>
+</table>
+
+<h2>4. Production Bench modules (same page)</h2>
+<p>Open <a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench">#view=bench</a>, then scroll or use the sidebar:</p>
+<ul>
+  <li>Blank Architecture (manufacturer, model, material, length, action, power)</li>
+  <li>Spine Finder — guided flex profile (replaces legacy spine slider)</li>
+  <li>Handle Assembly</li>
+  <li>Guide Spacing matrix</li>
+  <li>QC / Bench Validation — temp &amp; humidity (shared with Cure Tracker)</li>
+  <li>Cure Tracker — epoxy coats, recoat countdown</li>
+  <li>Wrap &amp; Finish — thread colors, customer, order notes</li>
+  <li>Build Photo Log — upload, captions, export zip</li>
+  <li><strong>Bench Mode</strong> — toggle in top nav for large mobile layout + Quick Log</li>
+</ul>
+
+<h2>5. CRM tabs (same page)</h2>
+<p>Open <a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm">#view=crm</a>:</p>
+<ul>
+  <li>Dashboard — open orders, in progress, completed this month</li>
+  <li>Customers — profiles and build history</li>
+  <li>Orders — pipeline stages; attach build sheet; inventory deduct on Complete</li>
+  <li>Quotes — line items, labor, markup, PDF export</li>
+  <li>Add — new customer form</li>
+</ul>
+
+<h2>6. Build Vault actions</h2>
+<p>Open <a href="https://rod-stack-ai-workbench-assistant.vercel.app/#view=vault">#view=vault</a> per build: Edit · Build Sheet (print/PDF) · Clone Build · order status chips.</p>
+
+<h2>7. Related Google Sheets (forms data)</h2>
+<ul>
+  <li><a href="https://docs.google.com/spreadsheets/d/17Xdqage1lBLZCfx8LC6m03n5w9fhf9IL_qcLgZRqTsM/edit">Signup</a></li>
+  <li><a href="https://docs.google.com/spreadsheets/d/1m8jG_3mva_CowBPQIzU4mQ8Upn4ADGZabPBmIoDzods/edit">Support</a></li>
+  <li><a href="https://docs.google.com/spreadsheets/d/1LEuolm3ZoGG3JOs9EEtOxbx4CCK8xVs6Pju8gB7GBzs/edit">Feature requests</a></li>
+  <li><a href="https://docs.google.com/spreadsheets/d/1WRA19FBOlJ5idoQ9lVJL6miQJy2Sc5Uxvq0UuvfWt_A/edit">Users / admin</a></li>
+</ul>
+
+<h2>8. Troubleshooting</h2>
+<ul>
+  <li><code>#admin</code> loads the admin app; <code>#view=…</code> loads the workshop app. Do not mix them in one URL.</li>
+  <li>If a hash link opens the wrong screen, clear <code>rodstack.app.v2</code> in DevTools → Application → Local Storage, or use a private window.</li>
+  <li>Supabase cloud sync: set <code>VITE_SUPABASE_URL</code> and <code>VITE_SUPABASE_ANON_KEY</code>; run <code>supabase/schema.sql</code> in your project.</li>
+</ul>
+
+<p style="margin-top:32px;font-size:9pt;color:#64748b;">Generated for RodStack AI Workbench Assistant · May 2026</p>
+</body>
+</html>

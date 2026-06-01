@@ -1,0 +1,42 @@
+Category,Section,Production URL,Local Dev URL,Bookmarkable,Notes
+Admin,Admin login (password gate),https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,Yes,Default password: rodstack-admin-2026 (or VITE_ADMIN_PASSWORD)
+Admin,Admin alt path,https://rod-stack-ai-workbench-assistant.vercel.app/admin,http://localhost:5173/admin,Yes,Same console as #admin
+Admin,User database table,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Default screen after unlock
+Admin,User detail,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Click a row in the user table
+Admin,Add user,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Click + Add User in admin header
+Admin,Ask Claude (AI analytics),https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Left nav: Ask Claude
+Admin,Form submissions / records,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Left nav: Form Records
+Admin,Linked Google Sheet (users),https://docs.google.com/spreadsheets/d/1WRA19FBOlJ5idoQ9lVJL6miQJy2Sc5Uxvq0UuvfWt_A/edit,,Yes,Opens from admin console
+App,Marketing / home,https://rod-stack-ai-workbench-assistant.vercel.app/,http://localhost:5173/,Yes,Default landing page
+App,Lineup Explorer,https://rod-stack-ai-workbench-assistant.vercel.app/#view=landing,http://localhost:5173/#view=landing,Yes,
+App,Blank Directory (onboarding),https://rod-stack-ai-workbench-assistant.vercel.app/#view=onboarding,http://localhost:5173/#view=onboarding,Yes,
+App,Production Bench,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,Yes,Spine Finder · Cure Tracker · Photo Log on this page
+App,Build Vault,https://rod-stack-ai-workbench-assistant.vercel.app/#view=vault,http://localhost:5173/#view=vault,Yes,Build Sheet · Clone Build per record
+App,CRM,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,Yes,Tabs: dashboard · customers · orders · quotes · add
+App,Inventory,https://rod-stack-ai-workbench-assistant.vercel.app/#view=inventory,http://localhost:5173/#view=inventory,Yes,Low-stock badge on nav when below threshold
+App,Analytics (profitability),https://rod-stack-ai-workbench-assistant.vercel.app/#view=analytics,http://localhost:5173/#view=analytics,Yes,
+App,Profile / auth,https://rod-stack-ai-workbench-assistant.vercel.app/#view=profile,http://localhost:5173/#view=profile,Yes,Builder name · shop · logo upload
+App,AI Extraction (scraper),https://rod-stack-ai-workbench-assistant.vercel.app/#view=scraper,http://localhost:5173/#view=scraper,Yes,
+App,Forms Hub,https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms,http://localhost:5173/#view=forms,Yes,
+Forms,User Signup tab,https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=signup,http://localhost:5173/#view=forms&tab=signup,Yes,
+Forms,Welcome Email tab,https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=email,http://localhost:5173/#view=forms&tab=email,Yes,
+Forms,Support Request tab,https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=support,http://localhost:5173/#view=forms&tab=support,Yes,
+Forms,Feature Request tab,https://rod-stack-ai-workbench-assistant.vercel.app/#view=forms&tab=feature,http://localhost:5173/#view=forms&tab=feature,Yes,
+Bench (in-page),Blank Architecture,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,Scroll on Production Bench
+Bench (in-page),Spine Finder / flex profile,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,Replaces legacy spine slider
+Bench (in-page),Handle Assembly,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,
+Bench (in-page),Guide Spacing matrix,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,
+Bench (in-page),QC / Bench Validation,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,Temp & humidity shared with Cure Tracker
+Bench (in-page),Cure Tracker,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,
+Bench (in-page),Wrap & Finish spec,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,Thread colors · finish · customer fields
+Bench (in-page),Build Photo Log,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,IndexedDB · Export Gallery zip
+Bench (in-page),Bench Mode overlay,https://rod-stack-ai-workbench-assistant.vercel.app/#view=bench,http://localhost:5173/#view=bench,No,Toggle Bench Mode in top nav (mobile-first)
+CRM (in-page),CRM dashboard,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,No,Open orders · in progress · completed this month
+CRM (in-page),Customers list,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,No,CRM tab: customers
+CRM (in-page),Orders pipeline,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,No,CRM tab: orders · attach build sheet
+CRM (in-page),Quote builder,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,No,CRM tab: quotes · export PDF
+CRM (in-page),Add customer,https://rod-stack-ai-workbench-assistant.vercel.app/#view=crm,http://localhost:5173/#view=crm,No,CRM tab: add
+External,Signup forms sheet,https://docs.google.com/spreadsheets/d/17Xdqage1lBLZCfx8LC6m03n5w9fhf9IL_qcLgZRqTsM/edit,,Yes,RodStack forms store
+External,Support forms sheet,https://docs.google.com/spreadsheets/d/1m8jG_3mva_CowBPQIzU4mQ8Upn4ADGZabPBmIoDzods/edit,,Yes,
+External,Feature forms sheet,https://docs.google.com/spreadsheets/d/1LEuolm3ZoGG3JOs9EEtOxbx4CCK8xVs6Pju8gB7GBzs/edit,,Yes,
+External,Users / admin sheet,https://docs.google.com/spreadsheets/d/1WRA19FBOlJ5idoQ9lVJL6miQJy2Sc5Uxvq0UuvfWt_A/edit,,Yes,Same as admin linked sheet

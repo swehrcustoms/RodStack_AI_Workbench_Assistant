@@ -10,18 +10,34 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
-  Ruler,
   Scale,
   FlaskConical,
   Gauge,
   Link as LinkIcon,
   Home,
   ClipboardList,
+  Archive,
+  Users,
+  Package,
+  BarChart3,
+  UserCircle,
+  Smartphone,
 } from "lucide-react";
 import MarketingLanding from "./MarketingLanding.jsx";
 import RodStackFormsSuite from "./forms/RodStackFormsSuite.jsx";
 import SignupForm from "./forms/SignupForm.jsx";
 import { seededBlueprint } from "./data/seededBlueprint.js";
+import { useRodStackData } from "./context/RodStackDataContext.jsx";
+import AuthPanel from "./modules/auth/AuthPanel.jsx";
+import ProfileView from "./modules/auth/ProfileView.jsx";
+import VaultView from "./modules/vault/VaultView.jsx";
+import CRMView from "./modules/crm/CRMView.jsx";
+import InventoryView from "./modules/inventory/InventoryView.jsx";
+import ProfitDashboard from "./modules/analytics/ProfitDashboard.jsx";
+import SpineFinderPanel from "./modules/spine/SpineFinderPanel.jsx";
+import CureTrackerPanel from "./modules/cure/CureTrackerPanel.jsx";
+import PhotoLogPanel from "./modules/photos/PhotoLogPanel.jsx";
+import BenchModeView from "./modules/bench/BenchModeView.jsx";
 
 const STORAGE_KEY = "rodstack.app.v2";
 
@@ -66,26 +82,95 @@ const parseNum = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
+const APP_VIEWS = new Set([
+  "marketing",
+  "landing",
+  "onboarding",
+  "bench",
+  "vault",
+  "crm",
+  "inventory",
+  "analytics",
+  "profile",
+  "scraper",
+  "forms",
+]);
+
+const FORMS_TABS = new Set(["signup", "email", "support", "feature"]);
+
+function parseAppHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash || hash === "admin") return null;
+  if (!hash.startsWith("view=")) return null;
+  const params = new URLSearchParams(hash);
+  const view = params.get("view");
+  if (!view || !APP_VIEWS.has(view)) return null;
+  const tab = params.get("tab");
+  return { view, tab: tab && FORMS_TABS.has(tab) ? tab : null };
+}
+
+function writeAppHash(view, formsTab) {
+  if (view === "marketing") {
+    if (window.location.hash && window.location.hash !== "#admin") {
+      window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    return;
+  }
+  const next = formsTab && view === "forms" ? `view=${view}&tab=${formsTab}` : `view=${view}`;
+  const target = `#${next}`;
+  if (window.location.hash !== target) window.history.replaceState(null, "", target);
+}
+
 function RodStackApp() {
+  const {
+    setData,
+    extendBuildRecord: extendRecord,
+    benchMode,
+    setBenchMode,
+    lowStockCount,
+    user,
+  } = useRodStackData();
+  const [showAuth, setShowAuth] = useState(false);
+  const [stockBannerDismissed, setStockBannerDismissed] = useState(false);
+
   const [appState, setAppState] = useState(() => {
+    const fromHash = parseAppHash();
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return defaultState;
+      if (!raw) {
+        return fromHash
+          ? { ...defaultState, currentView: fromHash.view, formsInitialTab: fromHash.tab || defaultState.formsInitialTab }
+          : defaultState;
+      }
       const parsed = JSON.parse(raw);
       return {
         ...defaultState,
         ...parsed,
+        currentView: fromHash?.view || parsed.currentView || defaultState.currentView,
+        formsInitialTab: fromHash?.tab || parsed.formsInitialTab || defaultState.formsInitialTab,
         onboarding: { ...defaultState.onboarding, ...(parsed.onboarding || {}) },
         scraper: { ...defaultState.scraper, ...(parsed.scraper || {}), isAnalyzing: false },
       };
     } catch {
-      return defaultState;
+      return fromHash
+        ? { ...defaultState, currentView: fromHash.view, formsInitialTab: fromHash.tab || defaultState.formsInitialTab }
+        : defaultState;
     }
   });
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
   }, [appState]);
+
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      builds: appState.inventory.map((bp) => {
+        const existing = prev.builds.find((b) => b.sku === bp.sku);
+        return extendRecord({ ...existing, ...bp, updatedAt: new Date().toISOString() });
+      }),
+    }));
+  }, [appState.inventory, setData, extendRecord]);
 
   const activeBlueprint = useMemo(() => {
     return (
@@ -97,13 +182,50 @@ function RodStackApp() {
 
   const updateState = (fn) => setAppState((prev) => fn(prev));
 
-  const setCurrentView = (view) => updateState((prev) => ({ ...prev, currentView: view }));
+  const setCurrentView = (view, options = {}) => {
+    writeAppHash(view, options.formsTab);
+    updateState((prev) => ({
+      ...prev,
+      currentView: view,
+      ...(options.formsTab ? { formsInitialTab: options.formsTab } : {}),
+    }));
+  };
+
+  useEffect(() => {
+    const onHash = () => {
+      const parsed = parseAppHash();
+      if (!parsed) return;
+      updateState((prev) => ({
+        ...prev,
+        currentView: parsed.view,
+        ...(parsed.tab ? { formsInitialTab: parsed.tab } : {}),
+      }));
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
 
   const updateActiveBlueprint = (updater) => {
     updateState((prev) => ({
       ...prev,
-      inventory: prev.inventory.map((item) => (item.sku === prev.activeBlueprintSku ? updater(item) : item)),
+      inventory: prev.inventory.map((item) =>
+        item.sku === prev.activeBlueprintSku ? extendRecord(typeof updater === "function" ? updater(item) : { ...item, ...updater }) : item
+      ),
     }));
+  };
+
+  const activeBuildRecord = useMemo(() => extendRecord(activeBlueprint), [activeBlueprint, extendRecord]);
+
+  const openBuildOnBench = (build) => {
+    updateState((prev) => {
+      const exists = prev.inventory.some((i) => i.sku === build.sku);
+      return {
+        ...prev,
+        inventory: exists ? prev.inventory.map((i) => (i.sku === build.sku ? build : i)) : [build, ...prev.inventory],
+        activeBlueprintSku: build.sku,
+        currentView: "bench",
+      };
+    });
   };
 
   const netComponentWeight = useMemo(() => {
@@ -237,12 +359,12 @@ function RodStackApp() {
     }, 1500);
   };
 
-  const NavButton = ({ target, icon: Icon, label }) => {
+  const NavButton = ({ target, icon: Icon, label, badge }) => {
     const active = appState.currentView === target;
     return (
       <button
         onClick={() => setCurrentView(target)}
-        className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm transition ${
+        className={`relative inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm transition ${
           active
             ? "border-cyan-400 bg-cyan-500/15 text-cyan-300"
             : "border-slate-700 bg-slate-900/70 text-slate-300 hover:border-slate-500 hover:text-white"
@@ -250,6 +372,11 @@ function RodStackApp() {
       >
         <Icon size={16} />
         {label}
+        {badge > 0 && (
+          <span className="absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-slate-950">
+            {badge}
+          </span>
+        )}
       </button>
     );
   };
@@ -273,14 +400,14 @@ function RodStackApp() {
         <MarketingLanding
           onLaunchBench={() => setCurrentView("bench")}
           onNavigate={(view) => setCurrentView(view)}
-          onSignIn={() => setCurrentView("onboarding")}
-          onOpenForms={(tab) =>
-            updateState((prev) => ({
-              ...prev,
-              currentView: tab === "signup" ? "onboarding" : "forms",
-              formsInitialTab: tab || "signup",
-            }))
-          }
+          onSignIn={() => {
+            setCurrentView("landing");
+            setShowAuth(true);
+          }}
+          onOpenForms={(tab) => {
+            if (tab === "signup") setCurrentView("onboarding");
+            else setCurrentView("forms", { formsTab: tab || "signup" });
+          }}
         />
       </div>
     );
@@ -303,11 +430,51 @@ function RodStackApp() {
               <NavButton target="landing" icon={Search} label="Lineup Explorer" />
               <NavButton target="onboarding" icon={Rocket} label="Blank Directory" />
               <NavButton target="bench" icon={LayoutDashboard} label="Production Bench" />
+              <NavButton target="vault" icon={Archive} label="Build Vault" />
+              <NavButton target="crm" icon={Users} label="CRM" />
+              <NavButton target="inventory" icon={Package} label="Inventory" badge={lowStockCount} />
+              <NavButton target="analytics" icon={BarChart3} label="Analytics" />
               <NavButton target="scraper" icon={LinkIcon} label="AI Extraction" />
               <NavButton target="forms" icon={ClipboardList} label="Forms Hub" />
+              <NavButton target="profile" icon={UserCircle} label="Profile" />
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !benchMode;
+                  setBenchMode(next);
+                  if (next) setCurrentView("bench");
+                }}
+                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm ${
+                  benchMode ? "border-cyan-400 bg-cyan-500/20 text-cyan-300" : "border-slate-700 bg-slate-900/70 text-slate-300"
+                }`}
+              >
+                <Smartphone size={16} />
+                Bench Mode
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAuth((v) => !v)}
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-sm text-slate-300 hover:text-white"
+              >
+                {user ? user.email : "Sign In"}
+              </button>
             </nav>
           </div>
+          {showAuth && (
+            <div className="mt-4 max-w-md">
+              <AuthPanel onClose={() => setShowAuth(false)} />
+            </div>
+          )}
         </header>
+
+        {lowStockCount > 0 && !stockBannerDismissed && (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+            <span>{lowStockCount} inventory SKU(s) below threshold — review stock before sourcing builds.</span>
+            <button type="button" onClick={() => setStockBannerDismissed(true)} className="text-xs underline">
+              Dismiss
+            </button>
+          </div>
+        )}
 
         {appState.currentView === "landing" && (
           <section className="space-y-6">
@@ -476,6 +643,26 @@ function RodStackApp() {
                     onChange={(e) => updateActiveBlueprint((bp) => ({ ...bp, technique: e.target.value }))}
                   />
                   <LabelInput
+                    label="Manufacturer"
+                    value={activeBlueprint.blankArchitecture.manufacturer}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        blankArchitecture: { ...bp.blankArchitecture, manufacturer: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Model"
+                    value={activeBlueprint.blankArchitecture.model}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        blankArchitecture: { ...bp.blankArchitecture, model: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
                     label="Blank Material"
                     value={activeBlueprint.blankArchitecture.blankMaterial}
                     onChange={(e) =>
@@ -550,24 +737,8 @@ function RodStackApp() {
                 </div>
 
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl border border-cyan-500/30 bg-slate-950 p-3">
-                    <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
-                      <span>Spine Axis ({activeBlueprint.blankArchitecture.spineAxis}deg)</span>
-                      <Ruler size={14} className="text-cyan-300" />
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="360"
-                      value={activeBlueprint.blankArchitecture.spineAxis}
-                      onChange={(e) =>
-                        updateActiveBlueprint((bp) => ({
-                          ...bp,
-                          blankArchitecture: { ...bp.blankArchitecture, spineAxis: Number(e.target.value) },
-                        }))
-                      }
-                      className="w-full accent-cyan-400"
-                    />
+                  <div className="rounded-xl border border-cyan-500/30 bg-slate-950 p-3 sm:col-span-2">
+                    <p className="mb-2 text-xs text-slate-400">Spine axis (from profile): {activeBlueprint.blankArchitecture.spineAxis}°</p>
                   </div>
                   <div className="rounded-xl border border-cyan-500/30 bg-slate-950 p-3">
                     <div className="mb-2 flex items-center justify-between text-xs text-slate-400">
@@ -591,6 +762,8 @@ function RodStackApp() {
                   </div>
                 </div>
               </article>
+
+              <SpineFinderPanel build={activeBuildRecord} onSave={(patch) => updateActiveBlueprint((bp) => ({ ...bp, ...patch }))} />
 
               <article className="rounded-2xl border border-blue-500/30 bg-slate-900/80 p-5">
                 <div className="mb-4 flex items-center justify-between">
@@ -874,9 +1047,109 @@ function RodStackApp() {
                   </div>
                 </div>
               </article>
+
+              <CureTrackerPanel
+                build={activeBuildRecord}
+                onSave={(patch) => updateActiveBlueprint((bp) => ({ ...bp, ...patch }))}
+              />
+
+              <article className="rounded-2xl border border-amber-500/30 bg-slate-900/80 p-5">
+                <p className="text-[11px] uppercase tracking-[0.25em] text-slate-400">Wrap & Finish Spec</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <LabelInput
+                    label="Primary thread"
+                    value={activeBuildRecord.threadColors?.primary}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        threadColors: { ...bp.threadColors, primary: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Trim thread"
+                    value={activeBuildRecord.threadColors?.trim}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        threadColors: { ...bp.threadColors, trim: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Inlay thread"
+                    value={activeBuildRecord.threadColors?.inlay}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        threadColors: { ...bp.threadColors, inlay: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Finish type"
+                    value={activeBuildRecord.finish?.type}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        finish: { ...bp.finish, type: e.target.value },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Coat count"
+                    type="number"
+                    value={activeBuildRecord.finish?.coatCount}
+                    onChange={(e) =>
+                      updateActiveBlueprint((bp) => ({
+                        ...bp,
+                        finish: { ...bp.finish, coatCount: Number(e.target.value) },
+                      }))
+                    }
+                  />
+                  <LabelInput
+                    label="Customer name"
+                    value={activeBuildRecord.customerName}
+                    onChange={(e) => updateActiveBlueprint((bp) => ({ ...bp, customerName: e.target.value }))}
+                  />
+                  <LabelInput
+                    label="Order notes"
+                    value={activeBuildRecord.orderNotes}
+                    onChange={(e) => updateActiveBlueprint((bp) => ({ ...bp, orderNotes: e.target.value }))}
+                  />
+                </div>
+              </article>
+
+              <PhotoLogPanel buildId={activeBuildRecord.id} />
             </aside>
           </section>
         )}
+
+        {benchMode && appState.currentView === "bench" && (
+          <BenchModeView
+            build={activeBuildRecord}
+            onExit={() => setBenchMode(false)}
+            onUpdateGuide={(idx, patch) =>
+              updateActiveBlueprint((bp) => {
+                const arr = [...(bp.guideTrain?.spacingArray || [])];
+                arr[idx] = patch.spacingFromTip ?? arr[idx];
+                return { ...bp, guideTrain: { ...bp.guideTrain, spacingArray: arr } };
+              })
+            }
+          />
+        )}
+
+        {appState.currentView === "vault" && (
+          <VaultView onEditBuild={openBuildOnBench} onOpenBench={() => setCurrentView("bench")} />
+        )}
+
+        {appState.currentView === "crm" && <CRMView />}
+
+        {appState.currentView === "inventory" && <InventoryView />}
+
+        {appState.currentView === "analytics" && <ProfitDashboard />}
+
+        {appState.currentView === "profile" && <ProfileView />}
 
         {appState.currentView === "scraper" && (
           <section className="rounded-2xl border border-slate-700 bg-slate-900/80 p-6">
