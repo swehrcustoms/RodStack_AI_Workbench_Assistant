@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   XCircle,
   Scale,
+  Ruler,
   FlaskConical,
   Gauge,
   Link as LinkIcon,
