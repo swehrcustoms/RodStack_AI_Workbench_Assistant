@@ -62,7 +62,7 @@ const parseNum = (v) => {
   return Number.isFinite(n) ? n : null;
 };
 
-function App() {
+function RodStackApp() {
   const [appState, setAppState] = useState(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -954,4 +954,4 @@ function App() {
   );
 }
 
-export default App;
+export default RodStackApp;
