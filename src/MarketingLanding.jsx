@@ -154,12 +154,12 @@ function MarketingLanding({ onLaunchBench, onNavigate, onSignIn }) {
             <img
               src="/RodStack Logo V2.png"
               alt="RodStack"
-              className="hidden h-9 w-auto sm:block"
+              className="hidden h-9 w-auto bg-transparent sm:block"
             />
             <img
               src="/RS Logo.png"
               alt="RodStack"
-              className="h-8 w-8 sm:hidden"
+              className="h-8 w-8 bg-transparent sm:hidden"
             />
           </button>
 
@@ -205,7 +205,7 @@ function MarketingLanding({ onLaunchBench, onNavigate, onSignIn }) {
             <img
               src="/RodStack Logo V1.png"
               alt="RodStack Engineering Ecosystem"
-              className="h-16 w-auto sm:h-20"
+              className="h-16 w-auto bg-transparent sm:h-20"
             />
           </div>
 
@@ -612,7 +612,7 @@ function MarketingLanding({ onLaunchBench, onNavigate, onSignIn }) {
       {/* ── Footer CTA ── */}
       <section className="border-t border-slate-800 bg-[#0b111e] px-4 py-14 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-3xl text-center">
-          <img src="/RodStack Logo V2.png" alt="RodStack" className="mx-auto h-10 w-auto opacity-80" />
+          <img src="/RodStack Logo V2.png" alt="RodStack" className="mx-auto h-10 w-auto bg-transparent opacity-80" />
           <h2 className="mt-6 text-2xl font-bold text-white">Ready to engineer your next production run?</h2>
           <p className="mt-3 text-sm text-slate-400">
             Join custom rod smiths using RodStack to document, validate, and repeat premium builds with physics-grade precision.
