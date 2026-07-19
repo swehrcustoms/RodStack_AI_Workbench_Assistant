@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
 import AdminDatabase from "./AdminDatabase.jsx";
+import AdminDashboard from "../pages/AdminDashboard.jsx";
 
 const SESSION_KEY = "rodstack.admin.session";
 const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD || "rodstack-admin-2026";
+const ADMIN_API_SECRET = import.meta.env.VITE_ADMIN_API_SECRET || ADMIN_PASS;
 
 export default function AdminGate({ onExit }) {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [view, setView] = useState("portals");
 
   useEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY) === "1") setAuthed(true);
@@ -32,7 +35,46 @@ export default function AdminGate({ onExit }) {
   };
 
   if (authed) {
-    return <AdminDatabase onExit={handleLogout} />;
+    return (
+      <div className="min-h-screen bg-[#070b12]">
+        <div className="border-b border-slate-800 bg-slate-900/90 px-4 py-2">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setView("portals")}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                  view === "portals" ? "bg-cyan-600 text-white" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Client Portals
+              </button>
+              <button
+                type="button"
+                onClick={() => setView("legacy")}
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                  view === "legacy" ? "bg-cyan-600 text-white" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Legacy Records
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="text-xs text-slate-500 hover:text-slate-300"
+            >
+              Sign out
+            </button>
+          </div>
+        </div>
+        {view === "portals" ? (
+          <AdminDashboard adminToken={ADMIN_API_SECRET} />
+        ) : (
+          <AdminDatabase onExit={handleLogout} />
+        )}
+      </div>
+    );
   }
 
   return (

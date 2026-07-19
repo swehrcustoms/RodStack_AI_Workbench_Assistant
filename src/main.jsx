@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import RodStackApp from "./App.jsx";
 import AdminGate from "./admin/AdminGate.jsx";
 import { RodStackDataProvider } from "./context/RodStackDataContext.jsx";
+import { TenantProvider } from "./context/TenantProvider.jsx";
 import "./index.css";
 
 if ("serviceWorker" in navigator) {
@@ -40,9 +41,11 @@ function Root() {
   }
 
   return (
-    <RodStackDataProvider>
-      <RodStackApp />
-    </RodStackDataProvider>
+    <TenantProvider>
+      <RodStackDataProvider>
+        <RodStackApp />
+      </RodStackDataProvider>
+    </TenantProvider>
   );
 }
 

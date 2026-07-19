@@ -39,6 +39,7 @@ import SpineFinderPanel from "./modules/spine/SpineFinderPanel.jsx";
 import CureTrackerPanel from "./modules/cure/CureTrackerPanel.jsx";
 import PhotoLogPanel from "./modules/photos/PhotoLogPanel.jsx";
 import BenchModeView from "./modules/bench/BenchModeView.jsx";
+import FeatureGate from "./components/FeatureGate.jsx";
 
 const STORAGE_KEY = "rodstack.app.v2";
 
@@ -1144,11 +1145,23 @@ function RodStackApp() {
           <VaultView onEditBuild={openBuildOnBench} onOpenBench={() => setCurrentView("bench")} />
         )}
 
-        {appState.currentView === "crm" && <CRMView />}
+        {appState.currentView === "crm" && (
+          <FeatureGate feature="has_customer_management">
+            <CRMView />
+          </FeatureGate>
+        )}
 
-        {appState.currentView === "inventory" && <InventoryView />}
+        {appState.currentView === "inventory" && (
+          <FeatureGate feature="has_inventory_tracking">
+            <InventoryView />
+          </FeatureGate>
+        )}
 
-        {appState.currentView === "analytics" && <ProfitDashboard />}
+        {appState.currentView === "analytics" && (
+          <FeatureGate feature="has_analytics">
+            <ProfitDashboard />
+          </FeatureGate>
+        )}
 
         {appState.currentView === "profile" && <ProfileView />}
 
