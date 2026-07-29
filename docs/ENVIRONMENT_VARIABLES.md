@@ -25,15 +25,14 @@ Do **not** set these (validator throws if non-empty):
 | `VITE_SERVICE_ROLE_KEY` | Bypasses RLS |
 | `VITE_SUPABASE_SERVICE_ROLE_KEY` | Bypasses RLS |
 
-## Server-only (future)
-
-When Prompt 2 adds Edge Functions / API routes, keep these **off** `VITE_`:
+## Server-only (Edge Functions / Dashboard)
 
 | Variable | Purpose |
 |----------|---------|
-| `ANTHROPIC_API_KEY` | Server proxy for Ask Claude |
-| `SUPABASE_SERVICE_ROLE_KEY` | Admin mutations only on server |
-| `ADMIN_ALLOWLIST` / role claims | Server authorization |
+| `SUPABASE_SERVICE_ROLE_KEY` | Admin Edge Functions only (auto-injected on hosted functions) |
+| `ANTHROPIC_API_KEY` | Future AI proxy — never `VITE_` |
+
+See [AUTH_SETUP.md](./AUTH_SETUP.md) for migration, platform owner promotion, and function deploy steps.
 
 ## Vercel configuration
 

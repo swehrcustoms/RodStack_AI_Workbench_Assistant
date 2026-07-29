@@ -33,13 +33,11 @@ Admin navigation HTML/CSV no longer publish a default password.
 
 ## Open issues
 
-### High — No privileged admin path
+### High — No privileged admin path → Resolved (Prompt 2)
 
-Admin CRUD against shared production data is impossible securely from this SPA alone. Need:
+Admin console is re-enabled at `/admin` using **Supabase Auth + `platform_admins`** and **Edge Functions** with the service role. Client password gates remain forbidden.
 
-- Authenticated admin role (Supabase custom claims / `app_metadata.role`)
-- Server-side admin APIs with service role (never exposed to client)
-- Audit logging
+Open follow-ups: Anthropic proxy; live E2E against a staging Supabase project.
 
 ### Medium — Local auth password hashes
 
@@ -83,9 +81,9 @@ If any of the following were ever set in Vercel or shared locally, rotate them:
 
 ## Secure admin re-enable criteria
 
-Do not re-open `AdminDatabase` until **all** are true:
+Met for subscription troubleshooting console:
 
-1. Server verifies the caller is an admin (JWT + role)
-2. Mutations go through privileged server endpoints
+1. Server verifies platform admin via `platform_admins` (Edge Functions + JWT)
+2. Mutations go through privileged Edge Functions (service role)
 3. No admin password in client code or `VITE_*`
-4. AI features call a proxy that never returns the API key to the browser
+4. AI features still require a future Anthropic proxy (Ask Claude remains disabled)

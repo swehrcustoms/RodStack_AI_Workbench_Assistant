@@ -13,14 +13,17 @@ Prioritized path from current secure-but-limited state to production-ready RodSt
 - [x] `.env.example` + `vercel.json`
 - [x] Release checklist
 
-## P1 — Secure auth & admin (Prompt 2 recommended)
+## P1 — Secure auth & admin (Prompt 2) — implemented
 
-1. **Force Supabase Auth in production** (disable local password store when `PROD`)
-2. **Admin role** via `app_metadata.role = 'admin'` (or equivalent)
-3. **Admin Edge Functions** for user/CRM ops using service role server-side
-4. **Re-wire AdminGate** to Supabase session + role check (still no password in client)
-5. **Anthropic proxy** Edge Function; restore Ask Claude without client keys
-6. **Rotate** any leaked Anthropic / admin credentials in Vercel
+- [x] Force Supabase Auth in production (local auth disabled when `PROD`)
+- [x] Platform roles via `platform_admins` (`platform_owner` / `support_admin` / `read_only_support`)
+- [x] Org roles: owner / admin / builder / viewer + memberships
+- [x] Admin Edge Functions for subscription troubleshooting
+- [x] Secure AdminApp at `/admin/*` (Supabase session + platform role)
+- [ ] Anthropic proxy Edge Function (deferred — restore Ask Claude later)
+- [ ] Rotate any historically leaked Anthropic / admin credentials in Vercel
+
+See [AUTH_SETUP.md](./AUTH_SETUP.md).
 
 ## P2 — Data integrity
 
@@ -46,7 +49,15 @@ Prioritized path from current secure-but-limited state to production-ready RodSt
 4. Load test forms webhook and Supabase RLS policies
 5. Go/no-go using [RELEASE_CHECKLIST.md](./RELEASE_CHECKLIST.md)
 
-## Prompt 2 recommendation
+## Prompt 2 status
+
+Delivered: migrations, AuthProvider, protected `/admin` console, org/platform roles, subscription troubleshooting Edge Functions, audit logging, unit tests.
+
+Remaining: Anthropic proxy; live integration tests against a real Supabase project; Stripe billing sync into `subscriptions`.
+
+See [AUTH_SETUP.md](./AUTH_SETUP.md).
+
+## Prompt 2 recommendation (historical)
 
 **Focus:** Secure authentication and a server-backed admin path.
 

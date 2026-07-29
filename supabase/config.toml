@@ -1,0 +1,13 @@
+# Supabase local/project config (minimal). Secrets live in Dashboard / .env — never VITE_*.
+project_id = "rodstack-ai-workbench-assistant"
+
+[api]
+enabled = true
+
+[auth]
+enabled = true
+enable_signup = true
+enable_confirmations = true
+
+[functions]
+verify_jwt = true

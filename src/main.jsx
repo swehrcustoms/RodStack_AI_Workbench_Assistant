@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import RodStackApp from "./App.jsx";
-import AdminGate from "./admin/AdminGate.jsx";
+import AdminApp from "./admin/AdminApp.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 import { RodStackDataProvider } from "./context/RodStackDataContext.jsx";
 import "./index.css";
 
@@ -14,7 +15,12 @@ if ("serviceWorker" in navigator) {
 const LEGACY_ADMIN_SESSION_KEY = "rodstack.admin.session";
 
 function isAdminRoute() {
-  return window.location.hash === "#admin" || window.location.pathname.endsWith("/admin");
+  const path = window.location.pathname;
+  return (
+    path === "/admin" ||
+    path.startsWith("/admin/") ||
+    window.location.hash === "#admin"
+  );
 }
 
 function clearLegacyAdminSession() {
@@ -30,30 +36,25 @@ function Root() {
 
   useEffect(() => {
     clearLegacyAdminSession();
+    if (window.location.hash === "#admin") {
+      window.history.replaceState({}, "", "/admin");
+      setAdminMode(true);
+    }
     const onRouteChange = () => setAdminMode(isAdminRoute());
-    window.addEventListener("hashchange", onRouteChange);
     window.addEventListener("popstate", onRouteChange);
-    return () => {
-      window.removeEventListener("hashchange", onRouteChange);
-      window.removeEventListener("popstate", onRouteChange);
-    };
+    return () => window.removeEventListener("popstate", onRouteChange);
   }, []);
 
   if (adminMode) {
-    return (
-      <AdminGate
-        onExit={() => {
-          window.location.hash = "";
-          setAdminMode(false);
-        }}
-      />
-    );
+    return <AdminApp />;
   }
 
   return (
-    <RodStackDataProvider>
-      <RodStackApp />
-    </RodStackDataProvider>
+    <AuthProvider>
+      <RodStackDataProvider>
+        <RodStackApp />
+      </RodStackDataProvider>
+    </AuthProvider>
   );
 }
 

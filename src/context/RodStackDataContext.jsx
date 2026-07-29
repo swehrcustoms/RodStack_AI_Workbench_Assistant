@@ -3,10 +3,10 @@ import { seededBlueprint } from "../data/seededBlueprint.js";
 import { extendBuildRecord, createBuildFromBlueprint, cloneBuildRecord, advanceOrderStatus, uid } from "../data/buildRecord.js";
 import { supabase, supabaseEnabled } from "../lib/supabaseClient.js";
 import { enqueueSyncOp, loadSyncQueue, clearSyncQueue } from "../lib/syncQueue.js";
+import { useAuth } from "./AuthContext.jsx";
 
 const DATA_KEY = "rodstack.platform.v1";
 const LEGACY_KEY = "rodstack.app.v2";
-const LOCAL_AUTH_KEY = "rodstack.local.auth.v1";
 
 const DEFAULT_INVENTORY_SKUS = [
   { id: "SKU-BLANK-001", category: "blanks", name: "MHX-EPS86M 7'3\" M", supplier: "MHX", supplierUrl: "", unitCost: 89, qty: 4, lowThreshold: 2 },
@@ -50,20 +50,19 @@ function saveLocalData(data) {
   localStorage.setItem(DATA_KEY, JSON.stringify(data));
 }
 
-async function hashPassword(password) {
-  const enc = new TextEncoder().encode(password);
-  const buf = await crypto.subtle.digest("SHA-256", enc);
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
-
 const RodStackDataContext = createContext(null);
 
 export function RodStackDataProvider({ children }) {
+  const {
+    user,
+    authReady,
+    profile: authProfile,
+    signUp,
+    signIn,
+    signOut,
+    updateProfile,
+  } = useAuth();
   const [data, setData] = useState(loadLocalData);
-  const [user, setUser] = useState(null);
-  const [authReady, setAuthReady] = useState(false);
   const [migrationOffered, setMigrationOffered] = useState(false);
   const [benchMode, setBenchMode] = useState(() => localStorage.getItem("rodstack.benchMode") === "1");
   const [syncing, setSyncing] = useState(false);
@@ -75,6 +74,19 @@ export function RodStackDataProvider({ children }) {
   useEffect(() => {
     localStorage.setItem("rodstack.benchMode", benchMode ? "1" : "0");
   }, [benchMode]);
+
+  useEffect(() => {
+    if (authProfile) {
+      setData((d) => ({
+        ...d,
+        profile: {
+          ...d.profile,
+          builderName: authProfile.builder_name || d.profile?.builderName || "",
+          shopName: authProfile.shop_name || d.profile?.shopName || "",
+        },
+      }));
+    }
+  }, [authProfile]);
 
   const persistCloud = useCallback(
     async (payload) => {
@@ -97,69 +109,6 @@ export function RodStackDataProvider({ children }) {
     const t = setTimeout(() => persistCloud(data), 800);
     return () => clearTimeout(t);
   }, [data, user, persistCloud]);
-
-  useEffect(() => {
-    const init = async () => {
-      if (supabaseEnabled && supabase) {
-        const { data: sessionData } = await supabase.auth.getSession();
-        setUser(sessionData.session?.user ?? null);
-        supabase.auth.onAuthStateChange((_e, session) => setUser(session?.user ?? null));
-      } else {
-        const raw = localStorage.getItem(LOCAL_AUTH_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          setUser(parsed.session || null);
-        }
-      }
-      setAuthReady(true);
-    };
-    init();
-  }, []);
-
-  const signUp = async ({ email, password, builderName, shopName }) => {
-    if (supabaseEnabled && supabase) {
-      const { data: authData, error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
-      const profile = { builderName, shopName, logoDataUrl: "" };
-      setData((d) => ({ ...d, profile }));
-      await persistCloud({ ...data, profile });
-      return authData.user;
-    }
-    const users = JSON.parse(localStorage.getItem("rodstack.local.users") || "[]");
-    if (users.find((u) => u.email === email)) throw new Error("Account already exists");
-    const passwordHash = await hashPassword(password);
-    const localUser = { id: uid("USER"), email, passwordHash, builderName, shopName };
-    users.push(localUser);
-    localStorage.setItem("rodstack.local.users", JSON.stringify(users));
-    const session = { id: localUser.id, email, builderName, shopName };
-    localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify({ session }));
-    setUser(session);
-    setData((d) => ({ ...d, profile: { builderName, shopName, logoDataUrl: "" } }));
-    return session;
-  };
-
-  const signIn = async ({ email, password }) => {
-    if (supabaseEnabled && supabase) {
-      const { data: authData, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      return authData.user;
-    }
-    const users = JSON.parse(localStorage.getItem("rodstack.local.users") || "[]");
-    const passwordHash = await hashPassword(password);
-    const found = users.find((u) => u.email === email && u.passwordHash === passwordHash);
-    if (!found) throw new Error("Invalid email or password");
-    const session = { id: found.id, email: found.email, builderName: found.builderName, shopName: found.shopName };
-    localStorage.setItem(LOCAL_AUTH_KEY, JSON.stringify({ session }));
-    setUser(session);
-    setData((d) => ({ ...d, profile: { builderName: found.builderName, shopName: found.shopName, logoDataUrl: d.profile?.logoDataUrl || "" } }));
-    return session;
-  };
-
-  const signOut = async () => {
-    if (supabaseEnabled && supabase) await supabase.auth.signOut();
-    localStorage.removeItem(LOCAL_AUTH_KEY);
-    setUser(null);
-  };
 
   const migrateLegacyToCloud = async () => {
     await persistCloud(data);
@@ -299,6 +248,7 @@ export function RodStackDataProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    updateProfile,
     migrateLegacyToCloud,
     updateBuild,
     addBuild,

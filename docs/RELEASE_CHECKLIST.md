@@ -6,9 +6,10 @@ Use before every production deploy.
 
 - [ ] No `VITE_ADMIN_PASSWORD`, `VITE_ANTHROPIC_*`, or service-role keys in Vercel
 - [ ] `.env.example` is the only env template committed
-- [ ] Admin route (`#admin` / `/admin`) shows **Access disabled** (until P1 secure auth ships)
+- [ ] Admin route (`/admin`) requires Supabase Auth + `platform_admins` row (no client password gate)
+- [ ] Edge Functions deployed; service role only on server
 - [ ] Anthropic / admin credentials rotated if they were ever client-exposed
-- [ ] Supabase RLS policies applied from `supabase/schema.sql` (if cloud enabled)
+- [ ] Supabase migration `20260729120000_auth_orgs_subscriptions.sql` applied
 - [ ] Forms webhook (if used) is authenticated server-side
 
 ## Quality gates
@@ -35,7 +36,7 @@ Use before every production deploy.
 - [ ] Workshop data persists after refresh (localStorage)
 - [ ] With Supabase: workspace syncs for signed-in user
 - [ ] Forms submit without throwing (simulated or webhook)
-- [ ] Admin unlock password form is **absent**
+- [ ] Admin unlock password form is **absent**; `/admin/login` uses Supabase Auth
 
 ## Rollback
 
