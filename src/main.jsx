@@ -11,14 +11,25 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+const LEGACY_ADMIN_SESSION_KEY = "rodstack.admin.session";
+
 function isAdminRoute() {
   return window.location.hash === "#admin" || window.location.pathname.endsWith("/admin");
+}
+
+function clearLegacyAdminSession() {
+  try {
+    sessionStorage.removeItem(LEGACY_ADMIN_SESSION_KEY);
+  } catch {
+    /* ignore */
+  }
 }
 
 function Root() {
   const [adminMode, setAdminMode] = useState(isAdminRoute);
 
   useEffect(() => {
+    clearLegacyAdminSession();
     const onRouteChange = () => setAdminMode(isAdminRoute());
     window.addEventListener("hashchange", onRouteChange);
     window.addEventListener("popstate", onRouteChange);

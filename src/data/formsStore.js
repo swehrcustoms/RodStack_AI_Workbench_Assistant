@@ -1,3 +1,5 @@
+import { getClientEnv } from "../lib/env";
+
 export const SHEETS = {
   signup: "17Xdqage1lBLZCfx8LC6m03n5w9fhf9IL_qcLgZRqTsM",
   support: "1m8jG_3mva_CowBPQIzU4mQ8Upn4ADGZabPBmIoDzods",
@@ -106,9 +108,9 @@ function upsertUserFromSignup(signup) {
 }
 
 export async function postToEndpoint(payload) {
-  const url = import.meta.env.VITE_FORMS_WEBHOOK_URL;
-  if (!url) return { ok: true, simulated: true };
-  const res = await fetch(url, {
+  const { formsWebhookUrl } = getClientEnv();
+  if (!formsWebhookUrl) return { ok: true, simulated: true };
+  const res = await fetch(formsWebhookUrl, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

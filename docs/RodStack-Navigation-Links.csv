@@ -1,8 +1,8 @@
 Category,Section,Production URL,Local Dev URL,Bookmarkable,Notes
-Admin,Admin login (password gate),https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,Yes,Default password: rodstack-admin-2026 (or VITE_ADMIN_PASSWORD)
-Admin,Admin alt path,https://rod-stack-ai-workbench-assistant.vercel.app/admin,http://localhost:5173/admin,Yes,Same console as #admin
-Admin,User database table,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Default screen after unlock
-Admin,User detail,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Click a row in the user table
+Admin,Admin route (disabled),https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,Yes,Frontend admin auth removed; shows disabled notice
+Admin,Admin alt path (disabled),https://rod-stack-ai-workbench-assistant.vercel.app/admin,http://localhost:5173/admin,Yes,Same disabled notice as #admin
+Admin,User database table,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Not reachable until secure server auth
+Admin,User detail,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Not reachable until secure server auth
 Admin,Add user,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Click + Add User in admin header
 Admin,Ask Claude (AI analytics),https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Left nav: Ask Claude
 Admin,Form submissions / records,https://rod-stack-ai-workbench-assistant.vercel.app/#admin,http://localhost:5173/#admin,No,Left nav: Form Records

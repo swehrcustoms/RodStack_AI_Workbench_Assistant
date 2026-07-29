@@ -24,26 +24,23 @@
 <strong>Local dev:</strong> <a href="http://localhost:5173/">http://localhost:5173/</a> (after <code>npm run dev</code>)</p>
 
 <div class="note">
-  <strong>Admin password:</strong> Default is <code>rodstack-admin-2026</code> unless you set <code>VITE_ADMIN_PASSWORD</code> in Vercel or <code>.env</code>. Admin session is stored in browser <code>sessionStorage</code> after unlock.
+  <strong>Admin access:</strong> Disabled until server-backed authentication exists. Frontend-only password gates and <code>VITE_ADMIN_PASSWORD</code> / hard-coded defaults have been removed. See <code>docs/SECURITY_AUDIT.md</code>.
 </div>
 
 <h2>1. Admin console</h2>
-<p>Entry points (same console):</p>
+<p>Entry points show a disabled notice (same route):</p>
 <ul>
   <li><a href="https://rod-stack-ai-workbench-assistant.vercel.app/#admin">Production — #admin</a></li>
   <li><a href="https://rod-stack-ai-workbench-assistant.vercel.app/admin">Production — /admin</a></li>
   <li><a href="http://localhost:5173/#admin">Local — #admin</a></li>
 </ul>
 
-<h3>In-app admin areas (no separate URLs)</h3>
+<h3>Legacy admin UI (not reachable until secure auth)</h3>
 <table>
-  <tr><th>Area</th><th>How to open</th></tr>
-  <tr><td>User database</td><td>Default after password unlock</td></tr>
-  <tr><td>User detail</td><td>Click any row in the user table</td></tr>
-  <tr><td>Add user</td><td>“+ Add User” in the admin header</td></tr>
-  <tr><td>Ask Claude</td><td>Left navigation → Ask Claude</td></tr>
-  <tr><td>Form submissions</td><td>Left navigation → Form Records</td></tr>
-  <tr><td>Form Records filters</td><td>All · Signup · Support · Feature · Email (tabs inside Form Records)</td></tr>
+  <tr><th>Area</th><th>Status</th></tr>
+  <tr><td>User database</td><td>Code retained; gate disabled</td></tr>
+  <tr><td>Ask Claude</td><td>Disabled — no client Anthropic keys</td></tr>
+  <tr><td>Form submissions</td><td>Code retained; gate disabled</td></tr>
 </table>
 
 <p><strong>Linked Google Sheet (users / admin):</strong><br />

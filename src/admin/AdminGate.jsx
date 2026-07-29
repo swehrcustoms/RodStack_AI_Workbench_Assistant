@@ -1,40 +1,15 @@
-import { useEffect, useState } from "react";
-import AdminDatabase from "./AdminDatabase.jsx";
+/**
+ * Admin console gate.
+ *
+ * Insecure frontend-only password auth (VITE_ADMIN_PASSWORD / hard-coded defaults)
+ * has been removed. Admin access stays disabled until a server-backed auth path
+ * (e.g. Supabase service role + RLS admin policies, or a secure backend) exists.
+ *
+ * See docs/SECURITY_AUDIT.md and docs/PRODUCTION_ROADMAP.md.
+ */
 
-const SESSION_KEY = "rodstack.admin.session";
-const ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD || "rodstack-admin-2026";
-
-export default function AdminGate({ onExit }) {
-  const [authed, setAuthed] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    if (sessionStorage.getItem(SESSION_KEY) === "1") setAuthed(true);
-  }, []);
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (password === ADMIN_PASS) {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuthed(true);
-      setError("");
-      return;
-    }
-    setError("Invalid admin credentials");
-  };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setAuthed(false);
-    setPassword("");
-    onExit?.();
-  };
-
-  if (authed) {
-    return <AdminDatabase onExit={handleLogout} />;
-  }
-
+/** @param {{ onExit?: () => void }} [props] */
+export default function AdminGate({ onExit } = {}) {
   return (
     <div
       style={{
@@ -48,79 +23,52 @@ export default function AdminGate({ onExit }) {
       }}
     >
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap');`}</style>
-      <form
-        onSubmit={handleLogin}
+      <div
         style={{
           width: "100%",
-          maxWidth: 380,
+          maxWidth: 420,
           background: "#0d1424",
           border: "1px solid #1e293b",
           borderRadius: 14,
           padding: "28px 24px",
         }}
       >
-        <div style={{ fontSize: 11, color: "#475569", letterSpacing: "0.12em", textTransform: "uppercase" }}>
-          Admin Only
-        </div>
-        <h1 style={{ marginTop: 8, fontSize: 20, color: "#f1f5f9", fontWeight: 700 }}>RodStack Database</h1>
-        <p style={{ marginTop: 8, fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
-          Restricted access. User records, subscriptions, and AI analytics console.
-        </p>
-        <label style={{ display: "block", marginTop: 20, fontSize: 10, color: "#475569", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-          Admin Password
-        </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+        <div
           style={{
-            width: "100%",
-            marginTop: 6,
-            background: "#070b12",
-            border: "1px solid #1e293b",
-            borderRadius: 8,
-            padding: "10px 12px",
-            color: "#e2e8f0",
-            fontSize: 13,
-            fontFamily: "'DM Mono', monospace",
-            outline: "none",
-            boxSizing: "border-box",
-          }}
-          placeholder="Enter admin password"
-          autoFocus
-        />
-        {error && <p style={{ marginTop: 8, fontSize: 12, color: "#f87171" }}>{error}</p>}
-        <button
-          type="submit"
-          style={{
-            width: "100%",
-            marginTop: 16,
-            background: "#1d4ed8",
-            color: "#fff",
-            border: "none",
-            borderRadius: 8,
-            padding: "11px 0",
-            fontSize: 13,
-            fontWeight: 600,
-            cursor: "pointer",
-            fontFamily: "'DM Mono', monospace",
+            fontSize: 11,
+            color: "#475569",
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
           }}
         >
-          Unlock Console
-        </button>
+          Admin Console
+        </div>
+        <h1 style={{ marginTop: 8, fontSize: 20, color: "#f1f5f9", fontWeight: 700 }}>
+          Access disabled
+        </h1>
+        <p style={{ marginTop: 12, fontSize: 13, color: "#94a3b8", lineHeight: 1.65 }}>
+          Frontend-only admin authorization has been removed for security. Client-side
+          password checks and <code style={{ color: "#64748b" }}>VITE_*</code> secrets are
+          not safe for production.
+        </p>
+        <p style={{ marginTop: 10, fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+          Re-enable this console only after server-backed authentication and authorization
+          are in place. See <code style={{ color: "#64748b" }}>docs/SECURITY_AUDIT.md</code>.
+        </p>
         {onExit && (
           <button
             type="button"
             onClick={onExit}
             style={{
               width: "100%",
-              marginTop: 10,
-              background: "transparent",
-              color: "#64748b",
-              border: "1px solid #334155",
+              marginTop: 20,
+              background: "#1d4ed8",
+              color: "#fff",
+              border: "none",
               borderRadius: 8,
-              padding: "9px 0",
-              fontSize: 12,
+              padding: "11px 0",
+              fontSize: 13,
+              fontWeight: 600,
               cursor: "pointer",
               fontFamily: "'DM Mono', monospace",
             }}
@@ -128,7 +76,7 @@ export default function AdminGate({ onExit }) {
             ← Back to RodStack
           </button>
         )}
-      </form>
+      </div>
     </div>
   );
 }

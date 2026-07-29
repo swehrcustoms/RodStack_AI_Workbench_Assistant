@@ -33,34 +33,8 @@ const EMPTY_USER = {
   tags: "",
 };
 
-// ─── CLAUDE API ─────────────────────────────────────────────────────────────
-async function askClaude(systemPrompt, userMessage) {
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("VITE_ANTHROPIC_API_KEY is not configured");
-  }
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 1000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userMessage }],
-    }),
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.error?.message || `API error ${res.status}`);
-  }
-  const data = await res.json();
-  return data.content?.[0]?.text || "";
-}
+// Claude / Anthropic calls must go through a server proxy. Never embed API keys
+// in VITE_* client env vars. See docs/SECURITY_AUDIT.md.
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
 function Avatar({ name, size = 36 }) {
@@ -337,27 +311,10 @@ export default function AdminDatabase({ onExit }) {
 
   const handleAiQuery = async () => {
     if (!aiQuery.trim()) return;
-    setAiLoading(true);
-    setAiResponse("");
-    try {
-      const systemPrompt = `You are an AI assistant for the RodStack user database management app. 
-You have access to the following user data (JSON):
-${JSON.stringify(users, null, 2)}
-
-Answer questions about the users, provide insights, suggest actions, or help filter/analyze the data.
-Be concise and helpful. Format your response in plain text — no markdown headers, keep it short and actionable.
-The Google Sheet is at: ${SHEET_URL}`;
-      const reply = await askClaude(systemPrompt, aiQuery);
-      setAiResponse(reply);
-    } catch (e) {
-      setAiResponse(
-        e.message?.includes("VITE_ANTHROPIC")
-          ? "Add VITE_ANTHROPIC_API_KEY to your .env file to enable Claude analytics."
-          : `Could not connect to Claude API: ${e.message || "Unknown error"}`
-      );
-    } finally {
-      setAiLoading(false);
-    }
+    setAiLoading(false);
+    setAiResponse(
+      "Ask Claude is disabled. Client-side Anthropic API keys (VITE_ANTHROPIC_API_KEY) were removed for security. Re-enable via a server-side proxy after secure admin auth is in place."
+    );
   };
 
   const s = {
