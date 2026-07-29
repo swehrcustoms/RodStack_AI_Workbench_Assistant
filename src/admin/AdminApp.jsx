@@ -9,6 +9,7 @@ import AdminOrganizations from "./pages/AdminOrganizations.jsx";
 import AdminSubscriptions from "./pages/AdminSubscriptions.jsx";
 import AdminEntitlements from "./pages/AdminEntitlements.jsx";
 import AdminAudit from "./pages/AdminAudit.jsx";
+import AdminAskClaude from "./pages/AdminAskClaude.jsx";
 import AdminSystem from "./pages/AdminSystem.jsx";
 
 export default function AdminApp() {
@@ -30,6 +31,7 @@ export default function AdminApp() {
             <Route path="organizations" element={<AdminOrganizations />} />
             <Route path="subscriptions" element={<AdminSubscriptions />} />
             <Route path="entitlements" element={<AdminEntitlements />} />
+            <Route path="ask" element={<AdminAskClaude />} />
             <Route path="audit" element={<AdminAudit />} />
             <Route path="system" element={<AdminSystem />} />
           </Route>

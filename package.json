@@ -13,10 +13,16 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
+    "test:unit": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "vitest run tests/stripeSync.test.ts tests/askClaude.test.ts tests/rls-migration.test.ts tests/edge-functions.test.ts",
     "test:e2e": "playwright test",
+    "test:e2e:staging": "PLAYWRIGHT_STAGING=1 playwright test --config=playwright.staging.config.ts",
     "validate": "npm run typecheck && npm run lint && npm run test && npm run build",
-    "validate:full": "npm run validate && npm run test:e2e"
+    "validate:full": "npm run validate && npm run test:e2e",
+    "admin:promote-owner": "node scripts/promote-owner.mjs",
+    "stripe:reconcile": "node scripts/stripe-reconcile.mjs",
+    "deploy:staging": "bash scripts/deploy-staging.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1",

@@ -28,6 +28,8 @@ export default function AdminSystem() {
           <li>admin-start-plan-preview / admin-end-plan-preview</li>
           <li>admin-start-support-view / admin-end-support-view</li>
           <li>admin-manual-override</li>
+          <li>ask-claude</li>
+          <li>stripe-webhook</li>
         </ul>
       </div>
     </div>

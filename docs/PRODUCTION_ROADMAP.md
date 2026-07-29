@@ -20,10 +20,13 @@ Prioritized path from current secure-but-limited state to production-ready RodSt
 - [x] Org roles: owner / admin / builder / viewer + memberships
 - [x] Admin Edge Functions for subscription troubleshooting
 - [x] Secure AdminApp at `/admin/*` (Supabase session + platform role)
-- [ ] Anthropic proxy Edge Function (deferred — restore Ask Claude later)
+- [x] Anthropic `ask-claude` Edge Function + `/admin/ask` UI
+- [x] Stripe webhook sync + `stripe:reconcile` CLI
+- [x] `npm run admin:promote-owner` (service_role only)
+- [ ] Apply migrations + deploy on linked staging (requires developer credentials)
 - [ ] Rotate any historically leaked Anthropic / admin credentials in Vercel
 
-See [AUTH_SETUP.md](./AUTH_SETUP.md).
+See [AUTH_SETUP.md](./AUTH_SETUP.md) and [STAGING_CHECKLIST.md](./STAGING_CHECKLIST.md).
 
 ## P2 — Data integrity
 

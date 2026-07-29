@@ -313,7 +313,7 @@ export default function AdminDatabase({ onExit }) {
     if (!aiQuery.trim()) return;
     setAiLoading(false);
     setAiResponse(
-      "Ask Claude is disabled. Client-side Anthropic API keys (VITE_ANTHROPIC_API_KEY) were removed for security. Re-enable via a server-side proxy after secure admin auth is in place."
+      "Ask Claude moved to the secure owner console at /admin/ask (server-side Anthropic proxy)."
     );
   };
 

@@ -19,7 +19,11 @@ export type AuditAction =
   | "admin.start_support_view"
   | "admin.end_support_view"
   | "admin.manual_override"
+  | "admin.ask_claude"
+  | "admin.promote_platform_owner"
+  | "stripe.webhook"
   | "auth.sign_up"
+
   | "auth.sign_in"
   | "auth.password_reset"
   | "profile.update";
@@ -59,6 +63,8 @@ export function authorizeAdminAction(
     "admin.start_support_view",
     "admin.end_support_view",
     "admin.manual_override",
+    "admin.ask_claude",
+    "admin.promote_platform_owner",
   ];
 
   if (writeActions.includes(action) && !canMutatePlatform(role ?? null)) {

@@ -25,6 +25,14 @@ describe("parseClientEnv", () => {
     ).toThrow(/VITE_ANTHROPIC_API_KEY/);
   });
 
+  it("rejects Stripe secrets on VITE_ prefix", () => {
+    expect(() =>
+      parseClientEnv({
+        VITE_STRIPE_SECRET_KEY: "sk_test",
+      })
+    ).toThrow(/VITE_STRIPE_SECRET_KEY/);
+  });
+
   it("accepts valid supabase URL when provided", () => {
     const env = parseClientEnv({
       VITE_SUPABASE_URL: "https://example.supabase.co",

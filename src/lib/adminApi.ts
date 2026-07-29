@@ -3,7 +3,8 @@ import { supabase, supabaseEnabled } from "./supabaseClient.js";
 export class AdminApiError extends Error {
   constructor(
     message: string,
-    public status?: number
+    public status?: number,
+    public code?: string
   ) {
     super(message);
     this.name = "AdminApiError";
@@ -12,15 +13,35 @@ export class AdminApiError extends Error {
 
 async function invoke<T>(name: string, body: Record<string, unknown> = {}): Promise<T> {
   if (!supabaseEnabled || !supabase) {
-    throw new AdminApiError("Supabase is not configured");
+    throw new AdminApiError("Supabase is not configured", 503, "not_configured");
   }
+
   const { data, error } = await supabase.functions.invoke(name, { body });
+
   if (error) {
+    // Prefer structured body from Edge Function when available
+    const ctx = (error as { context?: Response }).context;
+    if (ctx && typeof ctx.json === "function") {
+      try {
+        const payload = await ctx.json();
+        if (payload?.error) {
+          throw new AdminApiError(String(payload.error), ctx.status, payload.code);
+        }
+      } catch (inner) {
+        if (inner instanceof AdminApiError) throw inner;
+      }
+    }
     throw new AdminApiError(error.message || `Function ${name} failed`);
   }
-  if (data?.error) {
-    throw new AdminApiError(String(data.error));
+
+  if (data && typeof data === "object" && "error" in data && data.error) {
+    throw new AdminApiError(
+      String((data as { error: string }).error),
+      undefined,
+      (data as { code?: string }).code
+    );
   }
+
   return data as T;
 }
 
@@ -73,4 +94,7 @@ export const adminApi = {
     reason: string;
     endsAt?: string | null;
   }) => invoke<{ ok: boolean; override: Record<string, unknown> }>("admin-manual-override", payload),
+
+  askClaude: (payload: { message: string; context?: string; organizationId?: string | null }) =>
+    invoke<{ ok: boolean; reply: string; model: string; usage?: unknown }>("ask-claude", payload),
 };

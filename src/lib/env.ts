@@ -21,6 +21,8 @@ const FORBIDDEN_CLIENT_KEYS = [
   "VITE_OPENAI_API_KEY",
   "VITE_SERVICE_ROLE_KEY",
   "VITE_SUPABASE_SERVICE_ROLE_KEY",
+  "VITE_STRIPE_SECRET_KEY",
+  "VITE_STRIPE_WEBHOOK_SECRET",
 ] as const;
 
 function assertNoClientSecrets(raw: Record<string, unknown>): void {

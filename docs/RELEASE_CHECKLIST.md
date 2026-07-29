@@ -7,10 +7,13 @@ Use before every production deploy.
 - [ ] No `VITE_ADMIN_PASSWORD`, `VITE_ANTHROPIC_*`, or service-role keys in Vercel
 - [ ] `.env.example` is the only env template committed
 - [ ] Admin route (`/admin`) requires Supabase Auth + `platform_admins` row (no client password gate)
-- [ ] Edge Functions deployed; service role only on server
-- [ ] Anthropic / admin credentials rotated if they were ever client-exposed
-- [ ] Supabase migration `20260729120000_auth_orgs_subscriptions.sql` applied
+- [ ] Edge Functions deployed (`admin-*`, `ask-claude`, `stripe-webhook`); service role only on server
+- [ ] Anthropic / Stripe / admin credentials rotated if they were ever client-exposed
+- [ ] Supabase migrations through `20260729140000_stripe_sync_and_promote_owner.sql` applied
 - [ ] Forms webhook (if used) is authenticated server-side
+- [ ] First platform owner promoted via `npm run admin:promote-owner` (not client UI)
+- [ ] Stripe webhook endpoint configured with signature secret
+
 
 ## Quality gates
 

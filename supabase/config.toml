@@ -11,3 +11,7 @@ enable_confirmations = true
 
 [functions]
 verify_jwt = true
+
+# Stripe sends its own signature — disable JWT verification for the webhook only.
+[functions.stripe-webhook]
+verify_jwt = false

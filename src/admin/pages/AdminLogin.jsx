@@ -68,16 +68,22 @@ export default function AdminLogin() {
         <p className="mt-2 text-xs leading-relaxed text-slate-500">
           Supabase Auth + platform_admins role. No client passwords or VITE_ secrets.
         </p>
-        <label className="mt-5 block text-[10px] uppercase tracking-wider text-slate-500">Email</label>
+        <label htmlFor="admin-email" className="mt-5 block text-[10px] uppercase tracking-wider text-slate-500">
+          Email
+        </label>
         <input
+          id="admin-email"
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1 w-full rounded-lg border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-200"
         />
-        <label className="mt-3 block text-[10px] uppercase tracking-wider text-slate-500">Password</label>
+        <label htmlFor="admin-password" className="mt-3 block text-[10px] uppercase tracking-wider text-slate-500">
+          Password
+        </label>
         <input
+          id="admin-password"
           type="password"
           required
           value={password}
