@@ -20,12 +20,22 @@ export function adminHandler(action: string, opts: { write?: boolean }, handler:
     const opt = handleOptions(req);
     if (opt) return opt;
     try {
-      if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, 405);
+      if (req.method !== "POST") {
+        return jsonResponse({ error: "Method not allowed", code: "method_not_allowed", action }, 405);
+      }
       const { user } = await requireUser(req);
       const service = createServiceClient();
       const admin = await requirePlatformAdmin(service, user.id);
       if (opts.write) assertCanWrite(admin.platform_role);
-      const body = (await req.json().catch(() => ({}))) as Record<string, unknown>;
+
+      let body: Record<string, unknown> = {};
+      try {
+        const raw = await req.text();
+        body = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+      } catch {
+        return jsonResponse({ error: "Invalid JSON body", code: "invalid_payload", action }, 400);
+      }
+
       const res = await handler({
         req,
         body,
@@ -41,7 +51,9 @@ export function adminHandler(action: string, opts: { write?: boolean }, handler:
         : message.includes("Unauthorized") || message.includes("Authorization")
           ? 401
           : 400;
-      return jsonResponse({ error: message, action }, status);
+      const code =
+        status === 401 ? "unauthorized" : status === 403 ? "forbidden" : "request_failed";
+      return jsonResponse({ error: message, code, action }, status);
     }
   };
 }

@@ -35,6 +35,7 @@ supabase db push
 - [ ] Confirm both migrations applied:
   - `20260729120000_auth_orgs_subscriptions.sql`
   - `20260729140000_stripe_sync_and_promote_owner.sql`
+  - `20260729210000_pilot_org_workspace_rls.sql`
 - [ ] In Supabase Table Editor, confirm you see tables like `profiles`, `organizations`, `subscriptions`, `platform_admins`, `audit_logs`
 
 ### A3. Configure Auth for real users
@@ -171,7 +172,13 @@ Pick one and write it down:
 - [ ] If billing later: set their plan (Stripe or manual override)
 - [ ] If they need a second employee: they invite/add under the same shop process you define (today: separate accounts may be separate orgs unless you add them to the same org in the database — **verify this before promising multi-user shops**)
 
-> **Important multi-user note:** Signup currently creates a **personal organization** for each new user. If the shop needs 2+ builders on one shared shop account, you must either (1) manually add the second user to the first user’s organization in Supabase, or (2) delay multi-user shops until that invite flow is built. Check this before promising “whole shop login.”
+> **Important multi-user note:** Signup creates a personal organization per user. For a second builder on the same shop, run:
+>
+> `npm run admin:add-user-to-org -- --email second@shop.com --org-id <uuid>`
+>
+> (or `scripts/add-user-to-org.sql`). This adds membership and can copy the owner workspace snapshot. Live simultaneous shared editing across accounts is still limited — start with one primary user when possible.
+>
+> Give the shop `docs/CLIENT_PILOT_GUIDE.md` at handoff.
 
 ---
 

@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# Staging deploy helper — does NOT run destructive production commands.
-# Requires: supabase CLI logged in and linked to a staging project.
+# Staging/pilot deploy helper — does NOT run destructive production wipe commands.
+# Requires: supabase CLI logged in and linked to the target project.
+#
+# Usage:
+#   npm run deploy:staging
+#   SKIP_DB_PUSH=1 npm run deploy:staging   # functions only
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -12,13 +16,16 @@ if ! command -v supabase >/dev/null 2>&1; then
   exit 1
 fi
 
-echo "==> Pushing migrations (staging/linked project)"
-supabase db push
+if [[ "${SKIP_DB_PUSH:-0}" != "1" ]]; then
+  echo "==> Pushing migrations (linked project)"
+  supabase db push
+else
+  echo "==> Skipping db push (SKIP_DB_PUSH=1)"
+fi
 
-echo "==> Setting secrets (skip empty)"
-# Usage example before this script:
-#   supabase secrets set ANTHROPIC_API_KEY=... ANTHROPIC_MODEL=claude-sonnet-4-20250514
-#   supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=... STRIPE_PRICE_PRO=... STRIPE_PRICE_ENTERPRISE=...
+echo "==> Reminder: set secrets before first AI/Stripe use:"
+echo "    supabase secrets set ANTHROPIC_API_KEY=... ANTHROPIC_MODEL=claude-sonnet-4-20250514"
+echo "    supabase secrets set STRIPE_SECRET_KEY=... STRIPE_WEBHOOK_SECRET=..."
 
 echo "==> Deploying Edge Functions"
 FUNCTIONS=(
@@ -35,17 +42,30 @@ FUNCTIONS=(
   stripe-webhook
 )
 
+FAILED=0
 for fn in "${FUNCTIONS[@]}"; do
+  echo "---- deploying $fn"
   if [[ "$fn" == "stripe-webhook" ]]; then
-    supabase functions deploy "$fn" --no-verify-jwt
+    if ! supabase functions deploy "$fn" --no-verify-jwt; then
+      echo "WARN: failed to deploy $fn"
+      FAILED=1
+    fi
   else
-    supabase functions deploy "$fn"
+    if ! supabase functions deploy "$fn"; then
+      echo "WARN: failed to deploy $fn"
+      FAILED=1
+    fi
   fi
 done
 
-echo "==> Done. Next:"
-echo "  1. Sign up a user in the staging app"
+if [[ "$FAILED" -ne 0 ]]; then
+  echo "==> One or more function deploys failed. Fix CLI auth/link and retry."
+  exit 1
+fi
+
+echo "==> Done. Next for pilot:"
+echo "  1. Sign up on the live app"
 echo "  2. npm run admin:promote-owner -- --email you@example.com"
 echo "  3. Open /admin/login"
-echo "  4. Point Stripe webhook to:"
-echo "     https://<project-ref>.supabase.co/functions/v1/stripe-webhook"
+echo "  4. Invite shop user; optionally:"
+echo "     npm run admin:add-user-to-org -- --email builder@shop.com --org-id <uuid>"

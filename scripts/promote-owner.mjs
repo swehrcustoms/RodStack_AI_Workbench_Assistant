@@ -31,16 +31,6 @@ async function main() {
     process.exit(1);
   }
 
-  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceKey) {
-    console.error(
-      "Missing SUPABASE_URL (or VITE_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY in the environment."
-    );
-    process.exit(1);
-  }
-
   if (!["platform_owner", "support_admin", "read_only_support"].includes(role)) {
     console.error(`Invalid role: ${role}`);
     process.exit(1);
@@ -49,6 +39,16 @@ async function main() {
   if (dryRun) {
     console.log(JSON.stringify({ dryRun: true, email, userId, role }, null, 2));
     return;
+  }
+
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!url || !serviceKey) {
+    console.error(
+      "Missing SUPABASE_URL (or VITE_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY in the environment."
+    );
+    process.exit(1);
   }
 
   const supabase = createClient(url, serviceKey, {

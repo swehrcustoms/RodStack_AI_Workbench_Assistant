@@ -21,6 +21,7 @@
     "validate": "npm run typecheck && npm run lint && npm run test && npm run build",
     "validate:full": "npm run validate && npm run test:e2e",
     "admin:promote-owner": "node scripts/promote-owner.mjs",
+    "admin:add-user-to-org": "node scripts/add-user-to-org.mjs",
     "stripe:reconcile": "node scripts/stripe-reconcile.mjs",
     "deploy:staging": "bash scripts/deploy-staging.sh"
   },

@@ -35,6 +35,23 @@ export default function InventoryView() {
       <div className="rounded-2xl border border-dashed border-slate-600 p-10 text-center text-slate-400">
         <p className="text-white">No inventory SKUs</p>
         <p className="mt-2 text-sm">Import a CSV or add your first blank, guide set, or thread spool SKU.</p>
+        <button
+          type="button"
+          onClick={() =>
+            addInventorySku({
+              category: "blanks",
+              name: "New SKU",
+              supplier: "",
+              supplierUrl: "",
+              unitCost: 0,
+              qty: 0,
+              lowThreshold: 2,
+            })
+          }
+          className="mt-4 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950"
+        >
+          + Add SKU
+        </button>
       </div>
     );
   }

@@ -1,33 +1,53 @@
 import { useEffect, useState } from "react";
 import JSZip from "jszip";
 import { PHOTO_STAGES } from "../../data/buildRecord.js";
-import { getPhotosForBuild, savePhoto, deletePhoto } from "../../lib/photoStore.js";
+import { getPhotosForBuild, savePhoto, deletePhoto, PhotoStorageError } from "../../lib/photoStore.js";
 
 export default function PhotoLogPanel({ buildId, onPhotosChange }) {
   const [photos, setPhotos] = useState([]);
   const [stage, setStage] = useState(PHOTO_STAGES[0]);
   const [caption, setCaption] = useState("");
+  const [error, setError] = useState("");
 
   const load = async () => {
+    if (!buildId) {
+      setPhotos([]);
+      return;
+    }
     const list = await getPhotosForBuild(buildId);
     setPhotos(list);
     onPhotosChange?.(list);
   };
 
   useEffect(() => {
-    if (buildId) load();
+    load();
   }, [buildId]);
 
   const onUpload = async (e) => {
     const file = e.target.files?.[0];
+    setError("");
     if (!file || !/^image\/(jpeg|png)$/i.test(file.type)) return;
+    if (!buildId) {
+      setError("Open a build before adding photos.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = async () => {
-      await savePhoto(buildId, { stage, caption, dataUrl: reader.result, name: file.name });
-      await load();
-      setCaption("");
+      try {
+        await savePhoto(buildId, { stage, caption, dataUrl: reader.result, name: file.name });
+        await load();
+        setCaption("");
+      } catch (err) {
+        setError(
+          err instanceof PhotoStorageError
+            ? err.message
+            : "Could not save photo on this device."
+        );
+      }
     };
+    reader.onerror = () => setError("Could not read that image file.");
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const exportZip = async () => {
@@ -70,6 +90,11 @@ export default function PhotoLogPanel({ buildId, onPhotosChange }) {
           <input type="file" accept="image/jpeg,image/png" className="hidden" onChange={onUpload} />
         </label>
       </div>
+
+      {error && <p className="mt-2 text-sm text-amber-300">{error}</p>}
+      <p className="mt-2 text-[11px] text-slate-500">
+        Photos stay on this device/browser (not cloud-synced yet).
+      </p>
 
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
         {photos.map((p) => (

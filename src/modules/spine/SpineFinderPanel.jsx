@@ -9,7 +9,15 @@ export default function SpineFinderPanel({ build, onSave }) {
   const { dominantDegrees, recommendation } = useMemo(() => computeSpineRecommendation(sections), [sections]);
 
   const blankLengthIn = 87;
-  const markCount = Math.floor(blankLengthIn / intervalIn) + 1;
+  const markCount = Math.max(1, Math.floor(blankLengthIn / Math.max(Number(intervalIn) || 6, 1)) + 1);
+
+  if (!build) {
+    return (
+      <article className="rounded-2xl border border-slate-700 bg-slate-900/80 p-5 text-sm text-slate-400">
+        Open a build to use the Spine Finder.
+      </article>
+    );
+  }
 
   const addSection = () => {
     setSections((prev) => [
@@ -32,7 +40,7 @@ export default function SpineFinderPanel({ build, onSave }) {
         completed: sections.length > 0,
         intervalIn,
       },
-      blankArchitecture: { ...build.blankArchitecture, spineAxis: dominantDegrees },
+      blankArchitecture: { ...(build.blankArchitecture || {}), spineAxis: dominantDegrees },
     });
   };
 

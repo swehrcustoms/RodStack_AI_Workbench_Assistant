@@ -47,7 +47,12 @@ function loadLocalData() {
 }
 
 function saveLocalData(data) {
-  localStorage.setItem(DATA_KEY, JSON.stringify(data));
+  try {
+    localStorage.setItem(DATA_KEY, JSON.stringify(data));
+  } catch (err) {
+    // QuotaExceeded or private mode — keep app running with in-memory state
+    console.warn("RodStack: localStorage save failed", err?.name || err);
+  }
 }
 
 const RodStackDataContext = createContext(null);
@@ -57,6 +62,7 @@ export function RodStackDataProvider({ children }) {
     user,
     authReady,
     profile: authProfile,
+    primaryOrgId,
     signUp,
     signIn,
     signOut,
@@ -66,6 +72,7 @@ export function RodStackDataProvider({ children }) {
   const [migrationOffered, setMigrationOffered] = useState(false);
   const [benchMode, setBenchMode] = useState(() => localStorage.getItem("rodstack.benchMode") === "1");
   const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(null);
 
   useEffect(() => {
     saveLocalData(data);
@@ -92,16 +99,23 @@ export function RodStackDataProvider({ children }) {
     async (payload) => {
       if (!user) return;
       if (supabaseEnabled && supabase) {
-        await supabase.from("rodstack_workspaces").upsert({
+        const { error } = await supabase.from("rodstack_workspaces").upsert({
           user_id: user.id,
+          organization_id: primaryOrgId || null,
           payload,
           updated_at: new Date().toISOString(),
         });
+        if (error) {
+          setSyncError(error.message);
+          enqueueSyncOp({ type: "upsert_workspace", userId: user.id, payload, organizationId: primaryOrgId });
+          return;
+        }
+        setSyncError(null);
       } else {
-        enqueueSyncOp({ type: "upsert_workspace", userId: user.id, payload });
+        enqueueSyncOp({ type: "upsert_workspace", userId: user.id, payload, organizationId: primaryOrgId });
       }
     },
-    [user]
+    [user, primaryOrgId]
   );
 
   useEffect(() => {
@@ -138,16 +152,34 @@ export function RodStackDataProvider({ children }) {
   useEffect(() => {
     if (!user || !supabaseEnabled || !supabase) return;
     const load = async () => {
-      const { data: row } = await supabase.from("rodstack_workspaces").select("payload").eq("user_id", user.id).maybeSingle();
-      if (row?.payload && typeof row.payload === "object") {
-        setData((prev) => ({
-          ...prev,
-          ...row.payload,
-          builds: row.payload.builds?.length ? row.payload.builds : prev.builds,
-          customers: row.payload.customers ?? prev.customers,
-          inventorySkus: row.payload.inventorySkus?.length ? row.payload.inventorySkus : prev.inventorySkus,
-          profile: { ...prev.profile, ...(row.payload.profile || {}) },
-        }));
+      try {
+        const { data: row, error } = await supabase
+          .from("rodstack_workspaces")
+          .select("payload")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (error) {
+          setSyncError(error.message);
+          return;
+        }
+        if (row?.payload && typeof row.payload === "object") {
+          setData((prev) => ({
+            ...prev,
+            ...row.payload,
+            builds: Array.isArray(row.payload.builds) && row.payload.builds.length
+              ? row.payload.builds
+              : prev.builds || [],
+            customers: Array.isArray(row.payload.customers) ? row.payload.customers : prev.customers || [],
+            inventorySkus: Array.isArray(row.payload.inventorySkus) && row.payload.inventorySkus.length
+              ? row.payload.inventorySkus
+              : prev.inventorySkus || [],
+            quotes: Array.isArray(row.payload.quotes) ? row.payload.quotes : prev.quotes || [],
+            profile: { ...(prev.profile || {}), ...(row.payload.profile || {}) },
+          }));
+        }
+        setSyncError(null);
+      } catch (err) {
+        setSyncError(err?.message || "Failed to load workspace");
       }
     };
     load();
@@ -219,15 +251,18 @@ export function RodStackDataProvider({ children }) {
   }, []);
 
   const lowStockCount = useMemo(
-    () => data.inventorySkus.filter((s) => (s.qty ?? 0) <= (s.lowThreshold ?? 0)).length,
+    () => (data.inventorySkus || []).filter((s) => (s.qty ?? 0) <= (s.lowThreshold ?? 0)).length,
     [data.inventorySkus]
   );
 
   const crmStats = useMemo(() => {
-    const open = data.builds.filter((b) => !["Complete", "Delivered"].includes(b.orderStatus)).length;
-    const inProgress = data.builds.filter((b) => ["In Progress", "Wrapping", "Curing"].includes(b.orderStatus)).length;
+    const builds = data.builds || [];
+    const open = builds.filter((b) => !["Complete", "Delivered"].includes(b.orderStatus)).length;
+    const inProgress = builds.filter((b) =>
+      ["In Progress", "Wrapping", "Curing"].includes(b.orderStatus)
+    ).length;
     const month = new Date().getMonth();
-    const completedMonth = data.builds.filter((b) => {
+    const completedMonth = builds.filter((b) => {
       if (b.orderStatus !== "Complete" && b.orderStatus !== "Delivered") return false;
       const ts = b.stageTimestamps?.Complete || b.updatedAt;
       return ts && new Date(ts).getMonth() === month;
@@ -245,6 +280,7 @@ export function RodStackDataProvider({ children }) {
     migrationOffered,
     setMigrationOffered,
     syncing,
+    syncError,
     signUp,
     signIn,
     signOut,
